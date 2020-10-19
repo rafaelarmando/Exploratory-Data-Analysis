@@ -19,7 +19,7 @@ EDA is an important part of any data analysis, even if the questions are handed 
 In this chapter we'll combine what you've learned about dplyr and ggplot2 to interactively ask questions, answer them with data, and then ask new questions.
 
 ```{r setup, message = FALSE}
-
+library(tidyverse)
 ```
 
 ## Questions
@@ -71,25 +71,31 @@ Every variable has its own pattern of variation, which can reveal interesting in
 How you visualise the distribution of a variable will depend on whether the variable is categorical or continuous. A variable is **categorical** if it can only take one of a small set of values. In R, categorical variables are usually saved as factors or character vectors. To examine the distribution of a categorical variable, use a bar chart:
 
 ```{r}
+diamonds
 
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
 ```
 
 The height of the bars displays how many observations occurred with each x value. You can compute these values manually with `dplyr::count()`:
 
 ```{r}
-
+diamonds %>%
+  count(cut)
 ```
 
 A variable is **continuous** if it can take any of an infinite set of ordered values. Numbers and date-times are two examples of continuous variables. To examine the distribution of a continuous variable, use a histogram:
 
 ```{r}
-
+ggplot(data = diamonds) + 
+  geom_histogram(mapping = aes(x = carat), binwidth = 0.5)
 ```
 
 You can compute this by hand by combining `dplyr::count()` and `ggplot2::cut_width()`:
 
 ```{r}
-
+diamonds %>%
+  count(cut_width(carat, 0.5))
 ```
 
 A histogram divides the x-axis into equally spaced bins and then uses the height of a bar to display the number of observations that fall in each bin. In the graph above, the tallest bar shows that almost 30,000 observations have a `carat` value between 0.25 and 0.75, which are the left and right edges of the bar. 
@@ -97,13 +103,18 @@ A histogram divides the x-axis into equally spaced bins and then uses the height
 You can set the width of the intervals in a histogram with the `binwidth` argument, which is measured in the units of the `x` variable. You should always explore a variety of binwidths when working with histograms, as different binwidths can reveal different patterns. For example, here is how the graph above looks when we zoom into just the diamonds with a size of less than three carats and choose a smaller binwidth.
 
 ```{r}
+smaller <- diamonds %>%
+  filter(carat < 3)
 
+ggplot(data = smaller) + 
+  geom_histogram(mapping = aes(x = carat), binwidth = 0.1)
 ```
 
 If you wish to overlay multiple histograms in the same plot, I recommend using `geom_freqpoly()` instead of `geom_histogram()`. `geom_freqpoly()` performs the same calculation as `geom_histogram()`, but instead of displaying the counts with bars, uses lines instead. It's much easier to understand overlapping lines than bars.
 
 ```{r}
-
+ggplot(data = smaller) + 
+  geom_freqpoly(mapping = aes(x = carat, color = cut), binwidth = 0.1)
 ```
 
 There are a few challenges with this type of plot, which we will come back to in [visualising a categorical and a continuous variable](#cat-cont).
