@@ -19,7 +19,7 @@ EDA is an important part of any data analysis, even if the questions are handed 
 In this chapter we'll combine what you've learned about dplyr and ggplot2 to interactively ask questions, answer them with data, and then ask new questions.
 
 ```{r setup, message = FALSE}
-library(tidyverse)
+
 ```
 
 ## Questions
@@ -71,29 +71,25 @@ Every variable has its own pattern of variation, which can reveal interesting in
 How you visualise the distribution of a variable will depend on whether the variable is categorical or continuous. A variable is **categorical** if it can only take one of a small set of values. In R, categorical variables are usually saved as factors or character vectors. To examine the distribution of a categorical variable, use a bar chart:
 
 ```{r}
-ggplot(data = diamonds) +
-  geom_bar(mapping = aes(x = cut))
+
 ```
 
 The height of the bars displays how many observations occurred with each x value. You can compute these values manually with `dplyr::count()`:
 
 ```{r}
-diamonds %>% 
-  count(cut)
+
 ```
 
 A variable is **continuous** if it can take any of an infinite set of ordered values. Numbers and date-times are two examples of continuous variables. To examine the distribution of a continuous variable, use a histogram:
 
 ```{r}
-ggplot(data = diamonds) +
-  geom_histogram(mapping = aes(x = carat), binwidth = 0.5)
+
 ```
 
 You can compute this by hand by combining `dplyr::count()` and `ggplot2::cut_width()`:
 
 ```{r}
-diamonds %>% 
-  count(cut_width(carat, 0.5))
+
 ```
 
 A histogram divides the x-axis into equally spaced bins and then uses the height of a bar to display the number of observations that fall in each bin. In the graph above, the tallest bar shows that almost 30,000 observations have a `carat` value between 0.25 and 0.75, which are the left and right edges of the bar. 
@@ -101,18 +97,13 @@ A histogram divides the x-axis into equally spaced bins and then uses the height
 You can set the width of the intervals in a histogram with the `binwidth` argument, which is measured in the units of the `x` variable. You should always explore a variety of binwidths when working with histograms, as different binwidths can reveal different patterns. For example, here is how the graph above looks when we zoom into just the diamonds with a size of less than three carats and choose a smaller binwidth.
 
 ```{r}
-smaller <- diamonds %>% 
-  filter(carat < 3)
-  
-ggplot(data = smaller, mapping = aes(x = carat)) +
-  geom_histogram(binwidth = 0.1)
+
 ```
 
 If you wish to overlay multiple histograms in the same plot, I recommend using `geom_freqpoly()` instead of `geom_histogram()`. `geom_freqpoly()` performs the same calculation as `geom_histogram()`, but instead of displaying the counts with bars, uses lines instead. It's much easier to understand overlapping lines than bars.
 
 ```{r}
-ggplot(data = smaller, mapping = aes(x = carat, colour = cut)) +
-  geom_freqpoly(binwidth = 0.1)
+
 ```
 
 There are a few challenges with this type of plot, which we will come back to in [visualising a categorical and a continuous variable](#cat-cont).
@@ -139,8 +130,7 @@ As an example, the histogram below suggests several interesting questions:
 * Why are there no diamonds bigger than 3 carats?
 
 ```{r}
-ggplot(data = smaller, mapping = aes(x = carat)) +
-  geom_histogram(binwidth = 0.01)
+
 ```
 
 Clusters of similar values suggest that subgroups exist in your data. To understand the subgroups, ask:
@@ -156,8 +146,7 @@ Clusters of similar values suggest that subgroups exist in your data. To underst
 The histogram below shows the length (in minutes) of 272 eruptions of the Old Faithful Geyser in Yellowstone National Park. Eruption times appear to be clustered into two groups: there are short eruptions (of around 2 minutes) and long eruptions (4-5 minutes), but little in between.
 
 ```{r}
-ggplot(data = faithful, mapping = aes(x = eruptions)) + 
-  geom_histogram(binwidth = 0.25)
+
 ```  
 
 Many of the questions above will prompt you to explore a relationship *between* variables, for example, to see if the values of one variable can explain the behavior of another variable. We'll get to that shortly.
@@ -167,16 +156,13 @@ Many of the questions above will prompt you to explore a relationship *between* 
 Outliers are observations that are unusual; data points that don't seem to fit the pattern. Sometimes outliers are data entry errors; other times outliers suggest important new science. When you have a lot of data, outliers are sometimes difficult to see in a histogram.  For example, take the distribution of the `y` variable from the diamonds dataset. The only evidence of outliers is the unusually wide limits on the x-axis.
 
 ```{r}
-ggplot(diamonds) + 
-  geom_histogram(mapping = aes(x = y), binwidth = 0.5)
+
 ```   
 
 There are so many observations in the common bins that the rare bins are so short that you can't see them (although maybe if you stare intently at 0 you'll spot something). To make it easy to see the unusual values, we need to zoom to small values of the y-axis with `coord_cartesian()`:
 
 ```{r}
-ggplot(diamonds) + 
-  geom_histogram(mapping = aes(x = y), binwidth = 0.5) +
-  coord_cartesian(ylim = c(0, 50))
+
 ```   
 
 (`coord_cartesian()` also has an `xlim()` argument for when you need to zoom into the x-axis. ggplot2 also has `xlim()` and `ylim()` functions that work slightly differently: they throw away the data outside the limits.)
@@ -184,19 +170,15 @@ ggplot(diamonds) +
 This allows us to see that there are three unusual values: 0, ~30, and ~60. We pluck them out with dplyr: 
 
 ```{r, include = FALSE}
-old <- options(tibble.print_max = 10, tibble.print_min = 10)
+
 ```
 
 ```{r}
-unusual <- diamonds %>% 
-  filter(y < 3 | y > 20) %>% 
-  select(price, x, y, z) %>%
-  arrange(y)
-unusual
+
 ```
 
 ```{r, include = FALSE}
-options(old)
+
 ```
 
 The `y` variable measures one of the three dimensions of these diamonds, in mm. We know that diamonds can't have a width of 0mm, so these values must be incorrect. We might also suspect that measurements of 32mm and 59mm are implausible: those diamonds are over an inch long, but don't cost hundreds of thousands of dollars!
@@ -227,10 +209,9 @@ If you've encountered unusual values in your dataset, and simply want to move on
 
 1.  Drop the entire row with the strange values:
 
-    ```{r, eval = FALSE}
-    diamonds2 <- diamonds %>% 
-      filter(between(y, 3, 20))
-    ```
+```{r, eval = FALSE}
+
+```
     
     I don't recommend this option because just because one measurement
     is invalid, doesn't mean all the measurements are. Additionally, if you
@@ -242,39 +223,28 @@ If you've encountered unusual values in your dataset, and simply want to move on
     with a modified copy. You can use the `ifelse()` function to replace
     unusual values with `NA`:
 
-    ```{r}
-    diamonds2 <- diamonds %>% 
-      mutate(y = ifelse(y < 3 | y > 20, NA, y))
-    ```
+```{r}
+
+```
 
 `ifelse()` has three arguments. The first argument `test` should be a logical vector. The result will contain the value of the second argument, `yes`, when `test` is `TRUE`, and the value of the third argument, `no`, when it is false. Alternatively to ifelse, use `dplyr::case_when()`. `case_when()` is particularly useful inside mutate when you want to create a new variable that relies on a complex combination of existing variables.
 
 Like R, ggplot2 subscribes to the philosophy that missing values should never silently go missing. It's not obvious where you should plot missing values, so ggplot2 doesn't include them in the plot, but it does warn that they've been removed:
 
 ```{r, dev = "png"}
-ggplot(data = diamonds2, mapping = aes(x = x, y = y)) + 
-  geom_point()
+
 ```
 
 To suppress that warning, set `na.rm = TRUE`:
 
 ```{r, eval = FALSE}
-ggplot(data = diamonds2, mapping = aes(x = x, y = y)) + 
-  geom_point(na.rm = TRUE)
+
 ```
 
 Other times you want to understand what makes observations with missing values different to observations with recorded values. For example, in `nycflights13::flights`, missing values in the `dep_time` variable indicate that the flight was cancelled. So you might want to compare the scheduled departure times for cancelled and non-cancelled times. You can do this by making a new variable with `is.na()`.
 
 ```{r}
-nycflights13::flights %>% 
-  mutate(
-    cancelled = is.na(dep_time),
-    sched_hour = sched_dep_time %/% 100,
-    sched_min = sched_dep_time %% 100,
-    sched_dep_time = sched_hour + sched_min / 60
-  ) %>% 
-  ggplot(mapping = aes(sched_dep_time)) + 
-    geom_freqpoly(mapping = aes(colour = cancelled), binwidth = 1/4)
+
 ```
 
 However this plot isn't great because there are many more non-cancelled flights than cancelled flights. In the next section we'll explore some techniques for improving this comparison.
@@ -295,22 +265,19 @@ If variation describes the behavior _within_ a variable, covariation describes t
 It's common to want to explore the distribution of a continuous variable broken down by a categorical variable, as in the previous frequency polygon. The default appearance of `geom_freqpoly()` is not that useful for that sort of comparison because the height is given by the count. That means if one of the groups is much smaller than the others, it's hard to see the differences in shape. For example, let's explore how the price of a diamond varies with its quality:
 
 ```{r}
-ggplot(data = diamonds, mapping = aes(x = price)) + 
-  geom_freqpoly(mapping = aes(colour = cut), binwidth = 500)
+
 ```
 
 It's hard to see the difference in distribution because the overall counts differ so much:
 
 ```{r, fig.width = "50%", fig.width = 4}
-ggplot(diamonds) + 
-  geom_bar(mapping = aes(x = cut))
+
 ```
 
 To make the comparison easier we need to swap what is displayed on the y-axis. Instead of displaying count, we'll display __density__, which is the count standardised so that the area under each frequency polygon is one.
 
 ```{r}
-ggplot(data = diamonds, mapping = aes(x = price, y = ..density..)) + 
-  geom_freqpoly(mapping = aes(colour = cut), binwidth = 500)
+
 ```
 
 There's something rather surprising about this plot - it appears that fair diamonds (the lowest quality) have the highest average price!  But maybe that's because frequency polygons are a little hard to interpret - there's a lot going on in this plot.
@@ -338,8 +305,7 @@ knitr::include_graphics("images/EDA-boxplot.png")
 Let's take a look at the distribution of price by cut using `geom_boxplot()`:
 
 ```{r fig.height = 3}
-ggplot(data = diamonds, mapping = aes(x = cut, y = price)) +
-  geom_boxplot()
+
 ```
 
 We see much less information about the distribution, but the boxplots are much more compact so we can more easily compare them (and fit more on one plot). It supports the counterintuitive finding that better quality diamonds are cheaper on average! In the exercises, you'll be challenged to figure out why.
@@ -349,23 +315,19 @@ We see much less information about the distribution, but the boxplots are much m
 For example, take the `class` variable in the `mpg` dataset. You might be interested to know how highway mileage varies across classes:
 
 ```{r}
-ggplot(data = mpg, mapping = aes(x = class, y = hwy)) +
-  geom_boxplot()
+
 ```
 
 To make the trend easier to see, we can reorder `class` based on the median value of `hwy`:
 
 ```{r fig.height = 3}
-ggplot(data = mpg) +
-  geom_boxplot(mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy))
+
 ```
 
 If you have long variable names, `geom_boxplot()` will work better if you flip it 90°. You can do that with `coord_flip()`.
 
 ```{r}
-ggplot(data = mpg) +
-  geom_boxplot(mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy)) +
-  coord_flip()
+
 ```
 
 #### Exercises
@@ -402,8 +364,7 @@ ggplot(data = mpg) +
 To visualise the covariation between categorical variables, you'll need to count the number of observations for each combination. One way to do that is to rely on the built-in `geom_count()`:
 
 ```{r}
-ggplot(data = diamonds) +
-  geom_count(mapping = aes(x = cut, y = color))
+
 ```
 
 The size of each circle in the plot displays how many observations occurred at each combination of values. Covariation will appear as a strong correlation between specific x values and specific y values. 
@@ -411,17 +372,13 @@ The size of each circle in the plot displays how many observations occurred at e
 Another approach is to compute the count with dplyr:
 
 ```{r}
-diamonds %>% 
-  count(color, cut)
+
 ```
 
 Then visualise with `geom_tile()` and the fill aesthetic:
 
 ```{r}
-diamonds %>% 
-  count(color, cut) %>%  
-  ggplot(mapping = aes(x = color, y = cut)) +
-    geom_tile(mapping = aes(fill = n))
+
 ```
 
 If the categorical variables are unordered, you might want to use the seriation package to simultaneously reorder the rows and columns in order to more clearly reveal interesting patterns. For larger plots, you might want to try the d3heatmap or heatmaply packages, which create interactive plots.
@@ -443,16 +400,14 @@ If the categorical variables are unordered, you might want to use the seriation 
 You've already seen one great way to visualise the covariation between two continuous variables: draw a scatterplot with `geom_point()`. You can see covariation as a pattern in the points. For example, you can see an exponential relationship between the carat size and price of a diamond.
 
 ```{r, dev = "png"}
-ggplot(data = diamonds) +
-  geom_point(mapping = aes(x = carat, y = price))
+
 ```
 
 Scatterplots become less useful as the size of your dataset grows, because points begin to overplot, and pile up into areas of uniform black (as above).
 You've already seen one way to fix the problem: using the `alpha` aesthetic to add transparency.
 
 ```{r, dev = "png"}
-ggplot(data = diamonds) + 
-  geom_point(mapping = aes(x = carat, y = price), alpha = 1 / 100)
+
 ```
 
 But using transparency can be challenging for very large datasets. Another solution is to use bin. Previously you used `geom_histogram()` and `geom_freqpoly()` to bin in one dimension. Now you'll learn how to use `geom_bin2d()` and `geom_hex()` to bin in two dimensions.
@@ -460,19 +415,13 @@ But using transparency can be challenging for very large datasets. Another solut
 `geom_bin2d()` and `geom_hex()` divide the coordinate plane into 2d bins and then use a fill color to display how many points fall into each bin. `geom_bin2d()` creates rectangular bins. `geom_hex()` creates hexagonal bins. You will need to install the hexbin package to use `geom_hex()`.
 
 ```{r, fig.asp = 1, out.width = "50%", fig.align = "default", message = FALSE}
-ggplot(data = smaller) +
-  geom_bin2d(mapping = aes(x = carat, y = price))
 
-# install.packages("hexbin")
-ggplot(data = smaller) +
-  geom_hex(mapping = aes(x = carat, y = price))
 ```
 
 Another option is to bin one continuous variable so it acts like a categorical variable. Then you can use one of the techniques for visualising the combination of a categorical and a continuous variable that you learned about. For example, you could bin `carat` and then for each group, display a boxplot:
 
 ```{r}
-ggplot(data = smaller, mapping = aes(x = carat, y = price)) + 
-  geom_boxplot(mapping = aes(group = cut_width(carat, 0.1)))
+
 ```
 
 `cut_width(x, width)`, as used above, divides `x` into bins of width `width`. By default, boxplots look roughly the same (apart from number of outliers) regardless of how many observations there are, so it's difficult to tell that each boxplot summarises a different number of points. One way to show that is to make the width of the boxplot proportional to the number of points with `varwidth = TRUE`.
@@ -480,8 +429,7 @@ ggplot(data = smaller, mapping = aes(x = carat, y = price)) +
 Another approach is to display approximately the same number of points in each bin. That's the job of `cut_number()`:
 
 ```{r}
-ggplot(data = smaller, mapping = aes(x = carat, y = price)) + 
-  geom_boxplot(mapping = aes(group = cut_number(carat, 20)))
+
 ```
 
 #### Exercises
@@ -504,11 +452,9 @@ ggplot(data = smaller, mapping = aes(x = carat, y = price)) +
    unusual combination of `x` and `y` values, which makes the points outliers 
    even though their `x` and `y` values appear normal when examined separately.
   
-    ```{r, dev = "png"}
-    ggplot(data = diamonds) +
-      geom_point(mapping = aes(x = x, y = y)) +
-      coord_cartesian(xlim = c(4, 11), ylim = c(4, 11))
-    ```
+```{r, dev = "png"}
+
+```
     
     Why is a scatterplot a better display than a binned plot for this case?
 
@@ -529,8 +475,7 @@ Patterns in your data provide clues about relationships. If a systematic relatio
 A scatterplot of Old Faithful eruption lengths versus the wait time between eruptions shows a pattern: longer wait times are associated with longer eruptions. The scatterplot also displays the two clusters that we noticed above.
 
 ```{r fig.height = 2}
-ggplot(data = faithful) + 
-  geom_point(mapping = aes(x = eruptions, y = waiting))
+
 ``` 
 
 Patterns provide one of the most useful tools for data scientists because they reveal covariation. If you think of variation as a phenomenon that creates uncertainty, covariation is a phenomenon that reduces it. If two variables covary, you can use the values of one variable to make better predictions about the values of the second. If the covariation is due to a causal relationship (a special case), then you can use the value of one variable to control the value of the second.
@@ -538,23 +483,13 @@ Patterns provide one of the most useful tools for data scientists because they r
 Models are a tool for extracting patterns out of data. For example, consider the diamonds data. It's hard to understand the relationship between cut and price, because cut and carat, and carat and price are tightly related. It's possible to use a model to remove the very strong relationship between price and carat so we can explore the subtleties that remain. The following code fits a model that predicts `price` from `carat` and then computes the residuals (the difference between the predicted value and the actual value). The residuals give us a view of the price of the diamond, once the effect of carat has been removed. 
 
 ```{r, dev = "png"}
-library(modelr)
 
-mod <- lm(log(price) ~ log(carat), data = diamonds)
-
-diamonds2 <- diamonds %>% 
-  add_residuals(mod) %>% 
-  mutate(resid = exp(resid))
-
-ggplot(data = diamonds2) + 
-  geom_point(mapping = aes(x = carat, y = resid))
 ```
 
 Once you've removed the strong relationship between carat and price, you can see what you expect in the relationship between cut and price: relative to their size, better quality diamonds are more expensive. 
 
 ```{r}
-ggplot(data = diamonds2) + 
-  geom_boxplot(mapping = aes(x = cut, y = resid))
+
 ```
 
 You'll learn how models, and the modelr package, work in the final part of the book, [model](#model-intro). We're saving modelling for later because understanding what models are and how they work is easiest once you have tools of data wrangling and programming in hand.
@@ -564,8 +499,7 @@ You'll learn how models, and the modelr package, work in the final part of the b
 As we move on from these introductory chapters, we'll transition to a more concise expression of ggplot2 code. So far we've been very explicit, which is helpful when you are learning:
 
 ```{r, eval = FALSE}
-ggplot(data = faithful, mapping = aes(x = eruptions)) + 
-  geom_freqpoly(binwidth = 0.25)
+
 ```
 
 Typically, the first one or two arguments to a function are so important that you should know them by heart. The first two arguments to `ggplot()` are `data` and `mapping`, and the first two arguments to `aes()` are `x` and `y`. In the remainder of the book, we won't supply those names. That saves typing, and, by reducing the amount of boilerplate, makes it easier to see what's different between plots. That's a really important programming concern that we'll come back in [functions].
@@ -573,17 +507,13 @@ Typically, the first one or two arguments to a function are so important that yo
 Rewriting the previous plot more concisely yields:
 
 ```{r, eval = FALSE}
-ggplot(faithful, aes(eruptions)) + 
-  geom_freqpoly(binwidth = 0.25)
+
 ```
 
 Sometimes we'll turn the end of a pipeline of data transformation into a plot. Watch for the transition from `%>%` to `+`. I wish this transition wasn't necessary but unfortunately ggplot2 was created before the pipe was discovered.
 
 ```{r, eval = FALSE}
-diamonds %>% 
-  count(cut, clarity) %>% 
-  ggplot(aes(clarity, cut, fill = n)) + 
-    geom_tile()
+
 ```
 
 ## Learning more
