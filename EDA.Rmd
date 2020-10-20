@@ -1,5 +1,7 @@
 # Exploratory Data Analysis
 
+SOME WEIRD CHANGES
+
 ## Introduction
 
 This chapter will show you how to use visualisation and transformation to explore your data in a systematic way, a task that statisticians call exploratory data analysis, or EDA for short. EDA is an iterative cycle. You:
